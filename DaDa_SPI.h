@@ -44,7 +44,7 @@ class DaDa_SPI {
             return dma_channel_is_busy(dma_tx_spi) || dma_channel_is_busy(dma_rx_spi);
         }
         void WaitUntilDMADoneBlocking(){
-            while(IsBusy());
+            while(IsBusy()) yield();
         }
         void StartDMA(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             // configure DMA
