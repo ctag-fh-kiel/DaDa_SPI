@@ -49,10 +49,8 @@ class DaDa_SPI {
         }
         void TransferBlocking(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
-            delay(100);
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
-            delay(100);
         }
         void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_ms=100){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
