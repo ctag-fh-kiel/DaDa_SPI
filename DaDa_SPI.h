@@ -61,12 +61,16 @@ class DaDa_SPI {
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
         }
-        void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_us=10){
+        void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_us=15){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
-            if (delay_us > 0) busy_wait_us_32(delay_us);
+            // delay here works
+            // if (delay_us > 0) busy_wait_us_32(delay_us);
             WaitUntilP4IsReady();
+            // delay here fails
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
+            // delay here works
+            if (delay_us > 0) busy_wait_us_32(delay_us);
         }
         void StartDMA(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             // configure DMA
