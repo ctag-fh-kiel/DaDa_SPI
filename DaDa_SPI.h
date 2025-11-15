@@ -8,7 +8,7 @@
 
 class DaDa_SPI {
     public:
-        DaDa_SPI(spi_inst_t* spi_port, uint cs, uint mosi, uint miso, uint handshake_pin, uint clk, uint speed) : _spi_port{spi_port}, _spi_cs{cs}, _spi_mosi{mosi}, _spi_miso{miso}, _handshake_pin{handshake_pin}, _spi_sclk{clk}, _spi_speed{speed} {
+        DaDa_SPI(spi_inst_t* spi_port, uint cs, uint mosi, uint miso, uint clk, uint handshake_pin, uint speed) : _spi_port{spi_port}, _spi_cs{cs}, _spi_mosi{mosi}, _spi_miso{miso}, _spi_sclk{clk}, _handshake_pin{handshake_pin}, _spi_speed{speed} {
             // claim two dma channels for tx / rx
             dma_tx_spi = dma_claim_unused_channel(true);
             dma_rx_spi = dma_claim_unused_channel(true);
