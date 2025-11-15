@@ -54,7 +54,6 @@ class DaDa_SPI {
         }
         void WaitUntilP4IsReady(){
             while(!gpio_get(_handshake_pin)) yield();
-            delay(10);
         }
         void TransferBlocking(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
@@ -62,13 +61,12 @@ class DaDa_SPI {
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
         }
-        void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_ms=100){
+        void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_ms=5){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
             if (delay_ms > 0) delay(delay_ms);
             WaitUntilP4IsReady();
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
-            if (delay_ms > 0) delay(delay_ms);
         }
         void StartDMA(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             // configure DMA
