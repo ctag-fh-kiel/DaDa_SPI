@@ -8,7 +8,7 @@
 
 class DaDa_SPI {
     public:
-        DaDa_SPI(spi_inst_t* spi_port, uint cs, uint mosi, uint miso, uint clk, uint speed) : _spi_port{spi_port}, _spi_cs{cs}, _spi_mosi{mosi}, _spi_miso{miso}, _spi_sclk{clk}, _spi_speed{speed} {
+        DaDa_SPI(spi_inst_t* spi_port, uint cs, uint mosi, uint miso, uint handshake_pin, uint clk, uint speed) : _spi_port{spi_port}, _spi_cs{cs}, _spi_mosi{mosi}, _spi_miso{miso}, _handshake_pin{handshake_pin}, _spi_sclk{clk}, _spi_speed{speed} {
             // claim two dma channels for tx / rx
             dma_tx_spi = dma_claim_unused_channel(true);
             dma_rx_spi = dma_claim_unused_channel(true);
@@ -25,6 +25,11 @@ class DaDa_SPI {
             channel_config_set_dreq(&crx_spi, spi_get_dreq(_spi_port, false));
             channel_config_set_read_increment(&crx_spi, false);
             channel_config_set_write_increment(&crx_spi, true);
+
+            // configure handshake pin as input, "ready for transaction from p4", 0 = busy, 1 = ready
+            gpio_init(_handshake_pin);
+            gpio_set_direction(_handshake_pin, GPIO_IN);
+            gpio_pull_down(_handshake_pin);
 
             // Initialize SPI bus and slave interface
             spi_init(_spi_port, _spi_speed);
@@ -47,17 +52,22 @@ class DaDa_SPI {
         void WaitUntilDMADoneBlocking(){
             while(IsBusy()) yield();
         }
+        void WaitUntilP4IsReady(){
+            while(!gpio_get(_handshake_pin)) yield();
+        }
         void TransferBlocking(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
+            WaitUntilP4IsReady(); // wait until p4 is ready
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
         }
         void TransferBlockingDelayed(uint8_t* tx_buf, uint8_t* rx_buf, uint len, uint delay_ms=100){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
-            delay(delay_ms);
+            if (delay_ms > 0) delay(delay_ms);
+            WaitUntilP4IsReady();
             StartDMA(tx_buf, rx_buf, len); // start DMA transfer
             WaitUntilDMADoneBlocking(); // wait until transfer is done
-            delay(delay_ms);
+            if (delay_ms > 0) delay(delay_ms);
         }
         void StartDMA(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             // configure DMA
@@ -78,7 +88,7 @@ class DaDa_SPI {
         }
 private:
     spi_inst_t * _spi_port {nullptr};
-    uint _spi_cs, _spi_mosi, _spi_miso, _spi_sclk, _spi_speed;
+    uint _spi_cs, _spi_mosi, _spi_miso, _spi_sclk, _spi_speed, _handshake_pin;
     uint dma_tx_spi;
     uint dma_rx_spi;
     dma_channel_config ctx_spi;
