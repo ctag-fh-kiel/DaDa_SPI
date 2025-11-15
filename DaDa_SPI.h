@@ -28,7 +28,7 @@ class DaDa_SPI {
 
             // configure handshake pin as input, "ready for transaction from p4", 0 = busy, 1 = ready
             gpio_init(_handshake_pin);
-            gpio_set_direction(_handshake_pin, GPIO_IN);
+            gpio_set_dir(_handshake_pin, GPIO_IN);
             gpio_pull_down(_handshake_pin);
 
             // Initialize SPI bus and slave interface
