@@ -55,6 +55,9 @@ class DaDa_SPI {
         void WaitUntilP4IsReady(){
             while(!gpio_get(_handshake_pin)) tight_loop_contents();
         }
+        bool GetP4Ready(){
+            return gpio_get(_handshake_pin);
+        }
         void TransferBlocking(uint8_t* tx_buf, uint8_t* rx_buf, uint len){
             WaitUntilDMADoneBlocking(); // wait until previous transfer is done
             WaitUntilP4IsReady(); // wait until p4 is ready
